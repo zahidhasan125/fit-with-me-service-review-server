@@ -20,9 +20,10 @@ async function run() {
         const serviceCollection = client.db("serviceReviews").collection("serviceCollections");
         const reviewCollection = client.db("serviceReviews").collection("reviewCollections");
 
-        app.get('/service', async(req, res) => {
+        app.get('/services', async(req, res) => {
             const query = {};
-            
+            const services = await serviceCollection.find(query).limit(3).toArray();
+            res.send(services);
 
         })
 
