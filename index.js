@@ -18,13 +18,13 @@ async function run() {
         const serviceCollection = client.db("serviceReviews").collection("serviceCollections");
         const reviewsCollection = client.db("serviceReviews").collection("reviewCollections");
 
-        app.get('/services', async(req, res) => {
+        app.get('/services', async (req, res) => {
             const query = {};
             const services = await serviceCollection.find(query).limit(3).toArray();
             res.send(services);
 
         })
-        app.get('/allservices', async(req, res) => {
+        app.get('/allservices', async (req, res) => {
             const query = {};
             const allServices = await serviceCollection.find(query).toArray();
             res.send(allServices);
@@ -45,20 +45,18 @@ async function run() {
             res.send(result);
         })
 
-        app.get('/reviews', async(req, res) => {
-            const id = req.query.serviceId;
-            // const query = { _id: ObjectId(id) }{ _id: { $in: ObjectId(id) } }
-            // const objectId = ObjectId(id);
-            const query = {_id: {$eq: ObjectId(id)}};
-            const reviews = await reviewsCollection.find(query).toArray();
+        app.get('/reviews', async (req, res) => {
+            const serviceId = req.query.serviceId;
+            const query = { serviceId: { $eq: serviceId } };
+            const cursor = reviewsCollection.find(query)
+            const reviews = await cursor.toArray();
             res.send(reviews)
-            console.log(reviews);
 
         })
 
     }
     finally {
-        
+
     }
 }
 run().catch(err => console.log(err));
