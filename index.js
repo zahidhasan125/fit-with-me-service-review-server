@@ -18,15 +18,24 @@ async function run() {
         const serviceCollection = client.db("serviceReviews").collection("serviceCollections");
         const reviewsCollection = client.db("serviceReviews").collection("reviewCollections");
 
+        app.post('/addservice', async (req, res) => {
+            const newService = req.body;
+            const serviceWithTime = { ...newService, "date": new Date() };
+            const result = await serviceCollection.insertOne(serviceWithTime);
+            res.send(result);
+
+        })
         app.get('/services', async (req, res) => {
             const query = {};
-            const services = await serviceCollection.find(query).limit(3).toArray();
+            const options = { sort: { date: -1 } }
+            const services = await serviceCollection.find(query, options).limit(3).toArray()
             res.send(services);
 
         })
         app.get('/allservices', async (req, res) => {
             const query = {};
-            const allServices = await serviceCollection.find(query).toArray();
+            const options = { sort: { date: -1 } }
+            const allServices = await serviceCollection.find(query, options).toArray();
             res.send(allServices);
 
         })
@@ -50,7 +59,6 @@ async function run() {
             const query = { serviceId: { $eq: serviceId } };
             const reviews = await reviewsCollection.find(query).toArray();
             res.send(reviews)
-            console.log(serviceId);
         })
 
         app.get('/myreviews', async (req, res) => {
@@ -58,6 +66,15 @@ async function run() {
             const query = { userEmail: { $eq: userEmail } };
             const userReviews = await reviewsCollection.find(query).toArray();
             res.send(userReviews)
+        })
+
+        // delete review by reviewId
+
+        app.delete('/myreviews', async (req, res) => {
+            const reviewId = req.query.reviewId;
+            const query = { _id: ObjectId(reviewId) }
+            const result = await reviewsCollection.deleteOne(query);
+            res.send(result);
         })
 
     }
