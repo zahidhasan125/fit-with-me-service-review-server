@@ -1,5 +1,6 @@
 const express = require('express');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const jwt = require('jsonwebtoken');
 const app = express();
 const cors = require('cors');
 const port = process.env.PORT || 5000;
@@ -18,9 +19,30 @@ async function run() {
         const serviceCollection = client.db("serviceReviews").collection("serviceCollections");
         const reviewsCollection = client.db("serviceReviews").collection("reviewCollections");
 
-        app.post('/addservice', async (req, res) => {
+        async function verifyJWT(req, res, next) {
+            const authHeader = req.headers.authorization;
+            if (!authHeader) {
+                return res.status(403).send({ message: "Forbidden Access" })
+            }
+            const token = authHeader.split(' ')[1];
+            jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
+                if (err) {
+                    return res.status(401).send({ message: "Unauthorized Access" });
+                }
+                req.decoded = decoded;
+                next()
+            })
+        }
+
+        app.post('/jwt', (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '2h' })
+            res.send({ token })
+        })
+
+        app.post('/addservice', verifyJWT, async (req, res) => {
             const newService = req.body;
-            const serviceWithTime = { ...newService, "date": new Date() };
+            const serviceWithTime = { ...newService, "date": new Date().toLocaleString('en-US', { timeZone: 'Asia/Dhaka' })};
             const result = await serviceCollection.insertOne(serviceWithTime);
             res.send(result);
 
@@ -47,21 +69,21 @@ async function run() {
 
         })
 
-        app.post('/submitreview', async (req, res) => {
+        app.post('/submitreview', verifyJWT, async (req, res) => {
             const reviewItem = req.body;
-            const reviewItemWithTime = { ...reviewItem, "date": new Date() }
-            const result = await reviewsCollection.insertOne(reviewItemWithTime);
+            const result = await reviewsCollection.insertOne(reviewItem);
             res.send(result);
         })
 
         app.get('/reviews/:id', async (req, res) => {
             const serviceId = req.params.id;
             const query = { serviceId: { $eq: serviceId } };
-            const reviews = await reviewsCollection.find(query).toArray();
+            const options = { sort: { time: -1 } }
+            const reviews = await reviewsCollection.find(query, options).toArray();
             res.send(reviews)
         })
 
-        app.get('/myreviews', async (req, res) => {
+        app.get('/myreviews', verifyJWT, async (req, res) => {
             const userEmail = req.query.userEmail;
             const query = { userEmail: { $eq: userEmail } };
             const userReviews = await reviewsCollection.find(query).toArray();
