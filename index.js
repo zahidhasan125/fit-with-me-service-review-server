@@ -90,6 +90,16 @@ async function run() {
             res.send(userReviews)
         })
 
+        // update review
+        app.patch('/myreviews/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)}
+            const updatedReview = {
+                $set: {review: req.body.review}
+            }
+            const result = await reviewsCollection.updateOne(query, updatedReview);
+            res.send(result)
+        })
         // delete review by reviewId
 
         app.delete('/myreviews', async (req, res) => {
