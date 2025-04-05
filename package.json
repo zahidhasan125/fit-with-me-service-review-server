@@ -1,7 +1,6 @@
 {
   "name": "service-review-server-side",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -16,5 +15,14 @@
     "express": "^4.18.2",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^4.11.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zahidhasan125/fit-with-me-service-review-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/zahidhasan125/fit-with-me-service-review-server/issues"
+  },
+  "homepage": "https://github.com/zahidhasan125/fit-with-me-service-review-server#readme",
+  "description": ""
 }

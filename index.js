@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.voxvdqi.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.nh0c69x.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 async function run() {
@@ -42,7 +42,7 @@ async function run() {
 
         app.post('/addservice', verifyJWT, async (req, res) => {
             const newService = req.body;
-            const serviceWithTime = { ...newService, "date": new Date().toLocaleString('en-US', { timeZone: 'Asia/Dhaka' })};
+            const serviceWithTime = { ...newService, "date": new Date().toLocaleString('en-US', { timeZone: 'Asia/Dhaka' }) };
             const result = await serviceCollection.insertOne(serviceWithTime);
             res.send(result);
 
@@ -93,9 +93,9 @@ async function run() {
         // update review
         app.patch('/myreviews/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
-            const query = {_id: ObjectId(id)}
+            const query = { _id: ObjectId(id) }
             const updatedReview = {
-                $set: {review: req.body.review}
+                $set: { review: req.body.review }
             }
             const result = await reviewsCollection.updateOne(query, updatedReview);
             res.send(result)
